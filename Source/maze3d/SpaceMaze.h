@@ -6,28 +6,28 @@
 #include "GameFramework/Actor.h"
 #include <stack>
 #include "Engine/World.h"
-#include "Maze.generated.h"
+#include "SpaceMaze.generated.h"
 
 
 UCLASS()
-class MAZE3D_API AMaze : public AActor
+class MAZE3D_API ASpaceMaze : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
-	AMaze();
+	ASpaceMaze();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 private:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category=Room, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Room, meta = (AllowPrivateAccess = "true"))
 	USceneComponent* Scene;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Room, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<AActor> Visited;
@@ -42,8 +42,8 @@ private:
 	void SpawnItem(FVector& Position, UClass* Class, FRotator Rotation = FRotator::ZeroRotator);
 	FString FileName = TEXT("C:\\Users\\user\\Documents\\Unreal Projects\\maze3d\\output.txt");
 	std::stack<FVector> BacktrackingStack;
-	
-	UFUNCTION(BlueprintCallable, Category="Debug")
+
+	UFUNCTION(BlueprintCallable, Category = "Debug")
 	void printDebug(FVector DebugCube);
 	TArray<TArray<int32>> MazeArray;
 	enum {

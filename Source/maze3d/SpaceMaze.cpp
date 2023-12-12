@@ -1,21 +1,21 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Maze.h"
+#include "SpaceMaze.h"
 
 
 // Sets default values 
-AMaze::AMaze()
+ASpaceMaze::ASpaceMaze()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	Scene = CreateDefaultSubobject<USceneComponent>(TEXT("Scene"));
-	SetRootComponent(Scene);
-	PrimaryActorTick.bCanEverTick = true;
+    // Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+    Scene = CreateDefaultSubobject<USceneComponent>(TEXT("Scene"));
+    SetRootComponent(Scene);
+    PrimaryActorTick.bCanEverTick = true;
 }
 
-void AMaze::BeginPlay()
+void ASpaceMaze::BeginPlay()
 {
-	Super::BeginPlay();
+    Super::BeginPlay();
 
     srand(time(0));  // Инициализация генератора случайных чисел
 
@@ -26,15 +26,15 @@ void AMaze::BeginPlay()
 }
 
 // Called every frame
-void AMaze::Tick(float DeltaTime)
+void ASpaceMaze::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
+    Super::Tick(DeltaTime);
 }
 
-void AMaze::LoadAndSpawnItems()
+void ASpaceMaze::LoadAndSpawnItems()
 {
     // Создаем массив лабиринта
-    
+
     TArray<FString> Lines;
     FFileHelper::LoadFileToStringArray(Lines, *FileName);
     for (FString& Line : Lines)
@@ -65,7 +65,7 @@ void AMaze::LoadAndSpawnItems()
         BacktrackingStack.push(Position);
         MazeCellsVisited += 1;
         MazeArray[Position.Y][Position.X] |= CELL_VISITED;
-    };
+        };
 
     VisitCell(StartPosition);
     int debug = 0;
@@ -84,12 +84,12 @@ void AMaze::LoadAndSpawnItems()
         TMap<Direction, FVector> NearbyCells;
 
         auto IsCellUnvisited = [&](FVector cell) // ОН В ПРИНЦИПЕ НЕ ДОЛЖЕН ЗАХОДИТЬ ЗА ГРАНИ Т.К ПРОВЕРЯЕТСЯ НА CELL_MAZE
-        {
+            {
                 return ((MazeArray[cell.Y][cell.X] & CELL_MAZE) && !(MazeArray[cell.Y][cell.X] & CELL_VISITED) && !(MazeArray[cell.Y][cell.X] & EDGE_MAZE));
-        };
+            };
 
         if (NorthCell.Y >= 0 && IsCellUnvisited(NorthCell)
-            && MazeArray[NorthCell.Y][NorthCell.X]!=EDGE_MAZE) NearbyCells.Add(NORTH, NorthCell);
+            && MazeArray[NorthCell.Y][NorthCell.X] != EDGE_MAZE) NearbyCells.Add(NORTH, NorthCell);
         if (SouthCell.Y < MazeHeight && IsCellUnvisited(SouthCell)
             && MazeArray[SouthCell.Y][SouthCell.X] != EDGE_MAZE) NearbyCells.Add(SOUTH, SouthCell); // TODO Ошибка как раз в проверке на размер. Т.к размер не квадратный
         if (EastCell.X < MazeWidth && IsCellUnvisited(EastCell)
@@ -108,36 +108,36 @@ void AMaze::LoadAndSpawnItems()
             BacktrackingStack.pop();
             continue;
         }
-            
+
         int RandomDirection = rand() % Keys.Num();
-        
+
         switch (Keys[RandomDirection])
         {
             // In cells between which there are no path, there will walls
-            case NORTH:
-                MazeArray[NorthCell.Y][NorthCell.X] |= PATH_SOUTH;
-                MazeArray[CurrentCell.Y][CurrentCell.X] |= PATH_NORTH;
-                VisitCell(NorthCell);
-                break;
-            case SOUTH:
-                MazeArray[SouthCell.Y][SouthCell.X] |= PATH_NORTH;
-                MazeArray[CurrentCell.Y][CurrentCell.X] |= PATH_SOUTH;
-                VisitCell(SouthCell);
-                break;
-            case EAST:
-                MazeArray[EastCell.Y][EastCell.X] |= PATH_WEST;
-                MazeArray[CurrentCell.Y][CurrentCell.X] |= PATH_EAST;
-                VisitCell(EastCell);
-                break;
-            case WEST:
-                MazeArray[WestCell.Y][WestCell.X] |= PATH_EAST;
-                MazeArray[CurrentCell.Y][CurrentCell.X] |= PATH_WEST;
-                VisitCell(WestCell);
-                break;
+        case NORTH:
+            MazeArray[NorthCell.Y][NorthCell.X] |= PATH_SOUTH;
+            MazeArray[CurrentCell.Y][CurrentCell.X] |= PATH_NORTH;
+            VisitCell(NorthCell);
+            break;
+        case SOUTH:
+            MazeArray[SouthCell.Y][SouthCell.X] |= PATH_NORTH;
+            MazeArray[CurrentCell.Y][CurrentCell.X] |= PATH_SOUTH;
+            VisitCell(SouthCell);
+            break;
+        case EAST:
+            MazeArray[EastCell.Y][EastCell.X] |= PATH_WEST;
+            MazeArray[CurrentCell.Y][CurrentCell.X] |= PATH_EAST;
+            VisitCell(EastCell);
+            break;
+        case WEST:
+            MazeArray[WestCell.Y][WestCell.X] |= PATH_EAST;
+            MazeArray[CurrentCell.Y][CurrentCell.X] |= PATH_WEST;
+            VisitCell(WestCell);
+            break;
         }
-       
+
     }// Все так же, только юг и север поменяны местами
-   
+
 
     for (int32 Y = 0; Y < MazeArray.Num(); ++Y)
     {
@@ -173,7 +173,7 @@ void AMaze::LoadAndSpawnItems()
     }
 }
 
-void AMaze::SpawnWallBetweenCells(FVector& CurrentCell, FVector& NextCell)
+void ASpaceMaze::SpawnWallBetweenCells(FVector& CurrentCell, FVector& NextCell)
 {
     if (CurrentCell.X != NextCell.X)
     {
@@ -182,30 +182,30 @@ void AMaze::SpawnWallBetweenCells(FVector& CurrentCell, FVector& NextCell)
     }
     else if (CurrentCell.Y != NextCell.Y)
     {
-       FVector WallPosition(NextCell);
-       SpawnItem(WallPosition, Wall, FRotator(0, -90, 0));
+        FVector WallPosition(NextCell);
+        SpawnItem(WallPosition, Wall, FRotator(0, -90, 0));
     }
-    
+
 }
 
-void AMaze::SpawnItem(FVector& Position, UClass* Class, FRotator Rotation)
+void ASpaceMaze::SpawnItem(FVector& Position, UClass* Class, FRotator Rotation)
 {
-	AActor* Actor = GetWorld()->SpawnActor<AActor>(Class);
-	Actor->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
-	Actor->SetActorLocation(FVector(Position.X*100, Position.Y*100, Position.Z * 100));
+    AActor* Actor = GetWorld()->SpawnActor<AActor>(Class);
+    Actor->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
+    Actor->SetActorLocation(FVector(Position.X * 100, Position.Y * 100, Position.Z * 100));
     Actor->SetActorRotation(Rotation);
 }
 
-void AMaze::printDebug(FVector DebugCube)
+void ASpaceMaze::printDebug(FVector DebugCube)
 {
-    double f = MazeArray[DebugCube.Y/100][DebugCube.X/100];
+    double f = MazeArray[DebugCube.Y / 100][DebugCube.X / 100];
     UE_LOG(LogTemp, Display, TEXT("%f"), f);
 }
 
-FVector AMaze::FindRandomStartPosition(const TArray<TArray<int32>>& Maze)
+FVector ASpaceMaze::FindRandomStartPosition(const TArray<TArray<int32>>& Maze)
 {
     TArray<FVector> Positions;
-        
+
     for (int32 Y = 0; Y < Maze.Num(); ++Y)
     {
         const TArray<int32>& Row = Maze[Y];
@@ -214,7 +214,7 @@ FVector AMaze::FindRandomStartPosition(const TArray<TArray<int32>>& Maze)
             if (Row[X] == 2)
             {
                 Positions.Add(FVector(X, Y, 0));
-            } 
+            }
         }
     }
 
@@ -227,7 +227,7 @@ FVector AMaze::FindRandomStartPosition(const TArray<TArray<int32>>& Maze)
     return FVector();  // Возвращает нулевую позицию, если '2' не найдены
 }
 
-int32 AMaze::CountMazeCells(const TArray<TArray<int32>>& Maze)
+int32 ASpaceMaze::CountMazeCells(const TArray<TArray<int32>>& Maze)
 {
     int32 Count = 0;
     for (const TArray<int32>& Row : Maze)
